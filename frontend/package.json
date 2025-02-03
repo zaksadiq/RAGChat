@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/react": "^19.0.8",
     "cra-template-typescript": "1.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -12,7 +13,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -31,5 +33,30 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "electron": "electron .",
+  "dist": "electron-builder",
+  "main": "electron.js",
+  "build": {
+    "appId": "com.example.ragchat",
+    "productName": "RAGChat",
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^16.2.0",
+    "@types/jest": "^29.5.14",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.0",
+    "@types/react-dom": "^19.0.3",
+    "@types/testing-library__jest-dom": "^5.14.9",
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
+    "electron-is-dev": "^3.0.1",
+    "jest": "^27.5.1",
+    "web-vitals": "^4.2.4"
   }
 }
