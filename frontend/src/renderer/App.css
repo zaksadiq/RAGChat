@@ -4,19 +4,16 @@
  */
 body {
   position: relative;
-  color: white;
+  color: rgba(29, 28, 28, 0.846);
   height: 100vh;
-  background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
-  );
+  background: #f3f2f1;
   font-family: sans-serif;
   overflow-y: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 20px;
+  padding-top: 30px;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
 }
 
 button {
@@ -54,9 +51,81 @@ a:hover {
   text-decoration: none;
 }
 
-.Hello {
+/* .Hello {
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 20px 0;
+} */
+
+.comment-thread-box {
+  color: #777;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Monaco';
+  font-size: 8pt;
+  min-width: 200px;
+  max-width: 500px;
+  /* text-shadow: -1px -1px rgba(0,0,0,0.1), 1px 1px rgba(255,255,255,0.5); */
+}
+
+/* Facebook style loading greeking. 
+with thanks to https://cloudcannon.com/blog/how-the-facebook-content-placeholder-works/
+TODO: Reference properly.
+*/
+@keyframes placeHolderShimmer{
+  0%{
+      background-position: -468px 0
+  }
+  100%{
+      background-position: 468px 0
+  }
+}
+.greeking {
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeHolderShimmer;
+  animation-timing-function: linear;
+  background: #f6f7f8;
+  background: linear-gradient(to right, #eeeeee 8%, #e8e8e8 18%, #eeeeee 33%);
+  background-size: 1000px 104px;
+  height: 338px;
+  position: relative;
+  overflow: hidden;
+}
+/**/
+
+.greeking {
+  display: block;
+  /* background-color: #e8e8e8; */
+  height: 35px;
+  margin: 5px 0;
+  width: 350px;
+}
+
+.loading-box {
+  /* margin: 0 auto; */
+  margin-top: -100px;
+  margin-left: 150px;
+  z-index: 1;
+}
+
+.loading-animation {
+  padding: 11px;
+}
+
+
+.parent-comment {
+  /* color: pink; */
+  margin: 0 0 15px 0;
+}
+
+.sub-comment {
+  border-left: 1px solid #e8e8e8;
+  margin-left: 15px;
+  margin-top: 5px;
+  padding-bottom: 15px;
+  padding-left: 45px;
+  /* color: green;  */
 }
