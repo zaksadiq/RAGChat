@@ -66,6 +66,7 @@ a:hover {
   font-size: 8pt;
   min-width: 200px;
   max-width: 500px;
+  margin-bottom: 50px;
   /* text-shadow: -1px -1px rgba(0,0,0,0.1), 1px 1px rgba(255,255,255,0.5); */
 }
 
@@ -124,7 +125,7 @@ TODO: Reference properly.
 .sub-comment {
   border-left: 1px solid #e8e8e8;
   margin-left: 15px;
-  margin-top: 5px;
+  padding-top: 5px;
   padding-bottom: 15px;
   padding-left: 45px;
   /* color: green;  */

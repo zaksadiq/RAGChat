@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "name": "electron-react-boilerplate",
   "version": "4.6.0",
   "description": "A foundation for scalable desktop apps",

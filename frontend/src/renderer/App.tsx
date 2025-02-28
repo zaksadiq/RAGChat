@@ -84,7 +84,10 @@ function UI() {
 
 
   return (
+    <>
       <CommentThread />
+      <CommentThread />
+    </>
   );
 }
 
