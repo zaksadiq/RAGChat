@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.css';
 import { reuleaux } from 'ldrs'
 reuleaux.register('loading-animation')
+import axios from "axios";
 
 function CommentThread() {
 
@@ -13,7 +14,9 @@ function CommentThread() {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/message");
+      const response = await fetch("http://127.0.0.1:5001/message");
+      console.log('Got response.');
+      // console.log(response.json());
       const data: ApiResponse = await response.json();
       setMessagesJSON(data.response);
     } catch (error) {
@@ -23,7 +26,10 @@ function CommentThread() {
 
   const saveMessages = () => {
 
-    if (messagesJSON != "") {
+    console.log('messages json.');
+    console.log(messagesJSON);
+    // Check the three gates.
+    if (messagesJSON != "" && messagesJSON !== undefined && messagesJSON !== null) {
       console.log('about to parse:');
       console.log(messagesJSON);
       const json: { messages: Array<{ id: number, message: string }> } = JSON.parse(messagesJSON);
@@ -37,11 +43,12 @@ function CommentThread() {
     }
   }
 
-  // Run on app execution.
+  // Run on initial app execution.
   useEffect(() => {
     fetchMessages();
   }, []);
   
+  // Run when messagesJSON updates.
   useEffect(() => {
     saveMessages();
   }, [messagesJSON]);
@@ -79,15 +86,82 @@ function CommentThread() {
   );
 }
 
+function Sidebar() {
+  
+  const [file, setFile] = useState<Blob | null>(null)
+  const [uploading, setUploading] = useState<Boolean>(false);
+  const [response, setResponse] = useState<String>("");
+
+  const fileInputRef = useRef();
+
+  const browseFile = e => {
+    // Use hidden file input.
+    fileInputRef.current.click()
+  }
+  const uploadFile = e => {
+    console.log('Selected file.');
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      sendFileToBackend(file);
+    }
+    
+    // Send it to the backend.
+    setUploading(true);
+  }
+  const sendFileToBackend = async (file : Blob) => {
+    const formData = new FormData();
+    formData.append("file", file); // Append file to formData
+    try {
+      console.log('About to make API call.');
+      // Make API call to upload the file
+      const APIResponse = await fetch('http://127.0.0.1:5001/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      console.log(APIResponse);
+      // console.log(APIResponse.data); // Handle response as needed
+      // setResponse(APIRresponse.data);
+    } catch (err) {
+      console.error(err); // Handle any errors
+    } finally {
+      setUploading(false); // Reset uploading state
+    }
+  }
+
+  return (
+    <>
+      <div>
+        <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
+        <input onChange={uploadFile} ref={fileInputRef} style={{display:'none'}} type="file" />
+        { uploading ? <>
+              Uploading...
+              {/* <div className="loading-animation">
+                <loading-animation size="30"></loading-animation>
+              </div> */}
+          </> : response }
+      </div>
+    </>
+  );
+}
+
 function UI() {
 
 
 
   return (
-    <>
-      <CommentThread />
-      <CommentThread />
-    </>
+    <div id="wrapper">
+      <div id="inner-body">
+        <CommentThread />
+        <CommentThread />
+        <CommentThread />
+        <CommentThread />
+        <CommentThread />
+      </div>
+      <div id="sidebar-r">
+        <Sidebar />
+      </div>
+    </div>
   );
 }
 
