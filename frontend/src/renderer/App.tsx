@@ -88,7 +88,8 @@ function CommentThread() {
 
 function Sidebar() {
   
-  const [file, setFile] = useState<Blob | null>(null)
+  const [file, setFile] = useState<Blob | null>(null);
+  const [filename, setFilename] = useState<String | null>(null);
   const [uploading, setUploading] = useState<Boolean>(false);
   const [response, setResponse] = useState<String>("");
 
@@ -98,10 +99,11 @@ function Sidebar() {
     // Use hidden file input.
     fileInputRef.current.click()
   }
-  const uploadFile = e => {
+  const uploadFileOnSelect = e => {
     console.log('Selected file.');
     const selectedFile = e.target.files[0];
     if (selectedFile) {
+      setFilename(selectedFile.name);
       setFile(selectedFile);
       sendFileToBackend(file);
     }
@@ -133,13 +135,20 @@ function Sidebar() {
     <>
       <div>
         <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
-        <input onChange={uploadFile} ref={fileInputRef} style={{display:'none'}} type="file" />
+        <input onChange={uploadFileOnSelect} ref={fileInputRef} style={{display:'none'}} type="file" />
         { uploading ? <>
               Uploading...
               {/* <div className="loading-animation">
                 <loading-animation size="30"></loading-animation>
               </div> */}
-          </> : response }
+          </> : <> 
+          {response}
+                <div class="wrapper-fileThumbnail">
+                  <div class="fileThumbnail">
+                  </div>
+                  <p>{filename}</p>
+                </div>
+          </> }
       </div>
     </>
   );
