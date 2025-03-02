@@ -91,6 +91,7 @@ function Sidebar() {
   const [file, setFile] = useState<Blob | null>(null);
   const [filename, setFilename] = useState<String | null>(null);
   const [uploading, setUploading] = useState<Boolean>(false);
+  const [uploaded, setUploaded] = useState<Boolean>(false);
   const [response, setResponse] = useState<String>("");
 
   const fileInputRef = useRef();
@@ -128,6 +129,7 @@ function Sidebar() {
       console.error(err); // Handle any errors
     } finally {
       setUploading(false); // Reset uploading state
+      setUploaded(true);
     }
   }
 
@@ -136,18 +138,18 @@ function Sidebar() {
       <div>
         <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
         <input onChange={uploadFileOnSelect} ref={fileInputRef} style={{display:'none'}} type="file" />
-        { uploading ? <>
-              Uploading...
-              {/* <div className="loading-animation">
-                <loading-animation size="30"></loading-animation>
-              </div> */}
-          </> : <> 
+        { uploaded ? <>
           {response}
                 <div class="wrapper-fileThumbnail">
                   <div class="fileThumbnail">
                   </div>
                   <p>{filename}</p>
                 </div>
+          </> : <> 
+              {/* Uploading... */}
+              {/* <div className="loading-animation">
+                <loading-animation size="30"></loading-animation>
+              </div> */}
           </> }
       </div>
     </>
