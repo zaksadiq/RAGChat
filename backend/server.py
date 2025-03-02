@@ -51,15 +51,7 @@ payload = {
 
 client = InferenceClient(
     "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-<<<<<<< HEAD
-<<<<<<< HEAD
-    token="",
-=======
-    token="hf_",
->>>>>>> 95ba643 (Remove secrets.)
-=======
     token=secrets.HUGGING_FACE_API_KEY,
->>>>>>> 2fa130d (Switch server to use secrets.py for API keys.)
 )
 # prompt = "Explain quantum computing in simple terms."
 prompt = "Generate JSON containing JSON of an array of 7 distinct messages which follow as a COHERENT internet discussion about a topic of your choosing. Provide each as a JSON object with properties of id and message, following these strict two properties consistently. DO NOT USE HTML ELEMENTS SUCH AS SPAN JUST KEEP IT PLAIN TEXT AND EMOJI. The output must be presentable for a final product and NOT USE TEMPLATES SUCH AS [TOPIC] [PRODUCT X] AND SO ON."
