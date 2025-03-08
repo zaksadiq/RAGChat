@@ -3,6 +3,7 @@ node_modules
 __pycache__/
 api_keys.py
 myvenv/
+generated_topics/
 
 # Frontend
 

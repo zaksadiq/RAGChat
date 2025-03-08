@@ -13,6 +13,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 
 import random
 
+import pickle
+
 FOLDER_PROCESSED = "processed"
 FOLDER_VECTOR_DB = "vector_db"
 os.makedirs(FOLDER_PROCESSED, exist_ok=True)
@@ -66,18 +68,17 @@ def generate_topics_from_text(array_of_pages_text_strings):
         print(f"Page {i+1} topics: {topics}")
     return [generated_topics, printed_topics]
 
-def pick_random_topic(generated_pages_topics):
-    # Create a set (because this will only allow unique additions, unlike an Array/List.)
-    all_topics_in_one_set = set()
-    for page in generated_pages_topics:
-        for topic in page:
-            all_topics_in_one_set.add(topic[0]) # Array index 0 contains the topic ID.
+def save_to_file(file_name, generated_topics_by_page):
+    LOCAL_DATA_STORE_FOLDER = 'generated_topics'
 
-    selected_random_topic = random.choice(list(all_topics_in_one_set))
-    print('Random topic:')
-    print(selected_random_topic)
-    
-    return selected_random_topic
+    # Create the upload folder if it doesn't exist
+    if not os.path.exists(LOCAL_DATA_STORE_FOLDER):
+        os.makedirs(LOCAL_DATA_STORE_FOLDER)
+
+    file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + file_name + ".pkl"
+
+    with open(file_path_and_name, "wb") as file:
+        pickle.dump(generated_topics_by_page, file)
 
 def parse_pdf(pdf_path):
     file_name = os.path.basename(pdf_path).replace(".pdf", "") # Remove file extension for file name.
@@ -91,7 +92,6 @@ def parse_pdf(pdf_path):
     for topic in generated_topics_by_page[1]: 
         print(topic)
 
-    randomly_selected_topic = pick_random_topic(generated_topics_by_page)
-    print(generated_topics_by_page)
-
+    save_to_file(file_name, generated_topics_by_page)
+    
     return generated_topics_by_page
