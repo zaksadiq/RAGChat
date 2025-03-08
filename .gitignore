@@ -4,6 +4,10 @@ __pycache__/
 api_keys.py
 myvenv/
 generated_topics/
+uploads/
+
+
+# REACT ELECTRON BOILERPLATE:
 
 # Frontend
 

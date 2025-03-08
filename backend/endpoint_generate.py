@@ -1,7 +1,10 @@
 from flask import Blueprint, current_app, jsonify, request
 from huggingface_hub import InferenceClient
+
 import api_keys
 import requests
+
+from random_topic_and_rag import select_random_and_do_rag
 
 endpoint_generate = Blueprint('endpoint_generate', __name__)
 
@@ -46,6 +49,7 @@ prompt = "Generate JSON containing JSON of an array of 7 distinct messages which
 @endpoint_generate.route("/message")
 def get_message():
     try:
+        select_random_and_do_rag()
         # Make call to Ollama API
         response = requests.post(OLLAMA_API_URL, json=payload) # 'json' serialises the payload for us.
         # response = client.text_generation(prompt, max_new_tokens=200)

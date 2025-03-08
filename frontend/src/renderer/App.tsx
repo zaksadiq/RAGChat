@@ -87,7 +87,7 @@ function CommentThread() {
   );
 }
 
-function Sidebar({ generateDisabled, setGenerateDisabled }) {
+function Sidebar({ setGenerate, setGenerateDisabled }) {
   
   const [file, setFile] = useState<Blob | null>(null);
   const [filename, setFilename] = useState<String | null>(null);
@@ -120,6 +120,7 @@ function Sidebar({ generateDisabled, setGenerateDisabled }) {
   }, [file]);
 
   const sendFileToBackend = async (file : Blob) => {
+    setGenerate(false);
     setGenerateDisabled(true);
     setUploading(true);
     const formData = new FormData();
@@ -198,7 +199,7 @@ function UI() {
         <button disabled={generateDisabled} onClick={() => setGenerate(true)}>Generate</button> }
       </div>
       <div id="sidebar-r">
-        <Sidebar generateDisabled={generateDisabled} setGenerateDisabled={setGenerateDisabled} />
+        <Sidebar setGenerate={setGenerate} setGenerateDisabled={setGenerateDisabled} />
       </div>
     </div>
   );

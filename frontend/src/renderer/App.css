@@ -29,6 +29,7 @@ body {
 #sidebar-r {
   background-color: rgb(246 243 243);
   border-left: 1px solid #ddd;
+  color: #666;
   flex: 1;
   height: 100vh;
   position: fixed;

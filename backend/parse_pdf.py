@@ -20,6 +20,10 @@ FOLDER_VECTOR_DB = "vector_db"
 os.makedirs(FOLDER_PROCESSED, exist_ok=True)
 os.makedirs(FOLDER_VECTOR_DB, exist_ok=True)
 
+# Where we will put the generated topics as a binary file.
+LOCAL_DATA_STORE_FOLDER = 'generated_topics'
+
+
 # PDF Plumber text extraction on file.
 def get_text_from_pdf(pdf_path):
     pages_text_strings = []
@@ -69,7 +73,6 @@ def generate_topics_from_text(array_of_pages_text_strings):
     return [generated_topics, printed_topics]
 
 def save_to_file(file_name, generated_topics_by_page):
-    LOCAL_DATA_STORE_FOLDER = 'generated_topics'
 
     # Create the upload folder if it doesn't exist
     if not os.path.exists(LOCAL_DATA_STORE_FOLDER):
