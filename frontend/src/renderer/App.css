@@ -30,7 +30,8 @@ body {
 }
 
 #sidebar-r {
-  background-color: rgb(233,233,233);
+  background-color: rgb(246 243 243);
+  border-left: 1px solid #ddd;
   flex: 1;
   height: 100vh;
   position: fixed;
@@ -41,7 +42,7 @@ body {
 }
 
 #btn-upload {
-  background-color: #f3f2f1;
+  background-color: #fcfbfa;
   margin: 3px;
   width: calc(100% - 6px);
 }
@@ -65,6 +66,15 @@ body {
   padding: 0 10px;
 }
 
+.topics {
+  font-size: 7pt;
+  margin-left: 0;
+  padding-left: 0;
+  padding: 0 10px;
+}
+.topics > li {
+  padding-top: 8px;
+}
 
 button {
   background-color: white;
@@ -120,6 +130,11 @@ a:hover {
   /* text-shadow: -1px -1px rgba(0,0,0,0.1), 1px 1px rgba(255,255,255,0.5); */
 }
 
+
+#wrapper-loading {
+  margin: 0 auto 30px;
+}
+
 /* Facebook style loading greeking. 
 with thanks to https://cloudcannon.com/blog/how-the-facebook-content-placeholder-works/
 TODO: Reference properly.
@@ -153,6 +168,7 @@ TODO: Reference properly.
   height: 35px;
   margin: 5px 0;
   width: 350px;
+  z-index: -1;
 }
 
 .loading-box {

@@ -25,7 +25,6 @@ function CommentThread() {
   }
 
   const saveMessages = () => {
-
     console.log('messages json.');
     console.log(messagesJSON);
     // Check the three gates.
@@ -50,7 +49,9 @@ function CommentThread() {
   
   // Run when messagesJSON updates.
   useEffect(() => {
-    saveMessages();
+    if (messagesJSON !== "") {
+      saveMessages();
+    }
   }, [messagesJSON]);
 
   return (
@@ -68,7 +69,7 @@ function CommentThread() {
             );
           }) 
         ) : ( 
-          <>
+          <div id="wrapper-loading">
             <div className="greeking"></div>
             <div className="greeking"></div>
             <div className="greeking"></div>
@@ -78,7 +79,7 @@ function CommentThread() {
               </div>
               {/* <span>Loading...</span> */}
             </div>
-          </>
+          </div>
         ) 
       }
       </div>
@@ -92,12 +93,13 @@ function Sidebar() {
   const [filename, setFilename] = useState<String | null>(null);
   const [uploading, setUploading] = useState<Boolean>(false);
   const [uploaded, setUploaded] = useState<Boolean>(false);
+  const [success, setSuccess] = useState<Boolean>(false);
   const [response, setResponse] = useState<String>("");
 
   const fileInputRef = useRef();
 
   const browseFile = e => {
-    // Use hidden file input.
+    // Use hidden file input when button is pressed.
     fileInputRef.current.click()
   }
   const uploadFileOnSelect = e => {
@@ -106,13 +108,19 @@ function Sidebar() {
     if (selectedFile) {
       setFilename(selectedFile.name);
       setFile(selectedFile);
-      sendFileToBackend(file);
     }
-    
-    // Send it to the backend.
-    setUploading(true);
   }
+
+  // Run when file updates.
+  useEffect(() => {
+      // Send it to the backend.
+      if (file !== null) {
+        sendFileToBackend(file);
+      }
+  }, [file]);
+
   const sendFileToBackend = async (file : Blob) => {
+    setUploading(true);
     const formData = new FormData();
     formData.append("file", file); // Append file to formData
     try {
@@ -122,11 +130,21 @@ function Sidebar() {
         method: 'POST',
         body: formData,
       });
+
+      console.log('Response:');
       console.log(APIResponse);
-      // console.log(APIResponse.data); // Handle response as needed
-      // setResponse(APIRresponse.data);
-    } catch (err) {
-      console.error(err); // Handle any errors
+
+      const response = await APIResponse.json();
+      if (!APIResponse.ok) {
+        throw new Error(response.error);
+      } else {
+        setResponse(response);
+        setSuccess(true);
+      }
+    } catch (error) {
+      setSuccess(false);
+      setResponse(error.message);
+      console.error(error); 
     } finally {
       setUploading(false); // Reset uploading state
       setUploaded(true);
@@ -134,32 +152,32 @@ function Sidebar() {
   }
 
   return (
-    <>
-      <div>
-        <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
-        <input onChange={uploadFileOnSelect} ref={fileInputRef} style={{display:'none'}} type="file" />
-        { uploaded ? <>
-          {response}
-                <div class="wrapper-fileThumbnail">
-                  <div class="fileThumbnail">
-                  </div>
-                  <p>{filename}</p>
-                </div>
-          </> : <> 
-              {/* Uploading... */}
-              {/* <div className="loading-animation">
-                <loading-animation size="30"></loading-animation>
-              </div> */}
-          </> }
-      </div>
-    </>
+    <div>
+      <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
+      <input onChange={uploadFileOnSelect} ref={fileInputRef} style={{ display: 'none' }} type="file" />
+      { uploading ? <p className="wrapper-fileThumbnail">Uploading...</p> : (uploaded && success) ? <>
+        <div className="wrapper-fileThumbnail">
+          <div className="fileThumbnail">
+          </div>
+          <p>{response.file_path ? response.file_path : filename}</p>
+          <ol className="topics">
+            Topics:
+            {response.topics ? response.topics.map((item, index) => (
+              <li key={index}>{item}</li>
+            )) : ""}
+          </ol>
+        </div>
+      </> : (uploaded && !success) ? <p className="wrapper-fileThumbnail">Error: {response}</p> : <>
+        <div className="wrapper-fileThumbnail">
+          <p>No file uploaded.</p>
+        </div>
+      </>
+      }
+    </div>
   );
 }
 
 function UI() {
-
-
-
   return (
     <div id="wrapper">
       <div id="inner-body">

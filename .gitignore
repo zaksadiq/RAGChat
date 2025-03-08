@@ -1,7 +1,8 @@
 node_modules
 .DS_Store
 __pycache__/
-secrets.py
+api_keys.py
+myvenv/
 
 # Frontend
 

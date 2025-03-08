@@ -11,6 +11,8 @@ nltk.download('punkt_tab')
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+import random
+
 FOLDER_PROCESSED = "processed"
 FOLDER_VECTOR_DB = "vector_db"
 os.makedirs(FOLDER_PROCESSED, exist_ok=True)
@@ -38,17 +40,17 @@ def tokenise_text(text_to_tokenise):
     words = []
     for sentence in sentences: 
         for word in word_tokenize(sentence.lower()):  
-            if word.isalnum() and word not in stop_words:  #alnum => alpha numeric (to remove punctuation.)
+            if word.isalpha() and word not in stop_words:  #alnum => alpha numeric (to remove punctuation.)
                 words.append(word)  
     #
 
     return words
 
-def generate_topics_from_text(pages_text_strings_array):
+def generate_topics_from_text(array_of_pages_text_strings):
     # Currently works with all words on each page, but for more focused discussions we could work by sentence on each page, eventually, once technical details and implementation are worked out.
     
     # Get words on each page.
-    tokenised_pages = [tokenise_text(page_text_string) for page_text_string in pages_text_strings_array]
+    tokenised_pages = [tokenise_text(page_text_string) for page_text_string in array_of_pages_text_strings]
 
     # Dictionary and corpus necessary for LDA.
     dictionary = corpora.Dictionary(tokenised_pages) # Takes a list of lists. In our case a list of pages with a list of words.
@@ -60,18 +62,36 @@ def generate_topics_from_text(pages_text_strings_array):
     # Get topics of each page.
     generated_topics = [lda[doc_bow] for doc_bow in corpus]
     printed_topics = lda.print_topics(num_topics=7, num_words=3)
+    for i, topics in enumerate(generated_topics):
+        print(f"Page {i+1} topics: {topics}")
     return [generated_topics, printed_topics]
+
+def pick_random_topic(generated_pages_topics):
+    # Create a set (because this will only allow unique additions, unlike an Array/List.)
+    all_topics_in_one_set = set()
+    for page in generated_pages_topics:
+        for topic in page:
+            all_topics_in_one_set.add(topic[0]) # Array index 0 contains the topic ID.
+
+    selected_random_topic = random.choice(list(all_topics_in_one_set))
+    print('Random topic:')
+    print(selected_random_topic)
+    
+    return selected_random_topic
 
 def parse_pdf(pdf_path):
     file_name = os.path.basename(pdf_path).replace(".pdf", "") # Remove file extension for file name.
     output_path = os.path.join(FOLDER_PROCESSED, file_name + ".json")
 
-    extracted_pages_text = get_text_from_pdf(pdf_path)
+    extracted_text_by_page = get_text_from_pdf(pdf_path)
     print('extracted_pages_text:')
-    print(extracted_pages_text)
-    generated_pages_topics = generate_topics_from_text(extracted_pages_text)
+    print(extracted_text_by_page)
+    generated_topics_by_page = generate_topics_from_text(extracted_text_by_page)
     print('topics:')
-    for topic in generated_pages_topics[1]: 
+    for topic in generated_topics_by_page[1]: 
         print(topic)
 
-    return generated_pages_topics
+    randomly_selected_topic = pick_random_topic(generated_topics_by_page)
+    print(generated_topics_by_page)
+
+    return generated_topics_by_page
