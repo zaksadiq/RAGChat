@@ -3,17 +3,14 @@
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
 body {
-  position: relative;
-  color: rgba(29, 28, 28, 0.846);
-  height: 100vh;
+  color: #777;
   background: #f3f2f1;
-  font-family: sans-serif;
-  /* overflow-y: hidden; */
+  font-family: 'Monaco';
+  font-size: 7pt;
+  height: 100vh;
   margin: 0;
   padding: 0;
-  /* display: flex; */
-  /* justify-content: center; */
-  /* align-items: center; */
+  position: relative;
 }
 
 #wrapper {
@@ -69,8 +66,7 @@ body {
 .topics {
   font-size: 7pt;
   margin-left: 0;
-  padding-left: 0;
-  padding: 0 10px;
+  padding: 10px 10px 0;
 }
 .topics > li {
   padding-top: 8px;
@@ -119,11 +115,8 @@ a:hover {
 } */
 
 .comment-thread-box {
-  color: #777;
   display: flex;
   flex-direction: column;
-  font-family: 'Monaco';
-  font-size: 7pt;
   min-width: 200px;
   max-width: 500px;
   margin-bottom: 50px;
