@@ -60,12 +60,15 @@ def generate_topics_from_text(array_of_pages_text_strings):
 
     # Dictionary and corpus necessary for LDA.
     dictionary = corpora.Dictionary(tokenised_pages) # Takes a list of lists. In our case a list of pages with a list of words.
-    corpus = [dictionary.doc2bow(words) for words in tokenised_pages]
+    corpus = [dictionary.doc2bow(words) for words in tokenised_pages] # Convert words array into a 'bag-of-words' format.
 
     # Train LDA model.
     NUM_TOPICS = 7
     lda = models.LdaModel(corpus, num_topics=NUM_TOPICS, id2word=dictionary)
     # Get topics of each page.
+    # Results in an array of arrays, where each array item is a page of the pdf,
+    # and this is an array of tuples(?), with each tuple being a topic id, followed by its
+    # relevance score for that page.
     generated_topics = [lda[doc_bow] for doc_bow in corpus]
     printed_topics = lda.print_topics(num_topics=7, num_words=3)
     for i, topics in enumerate(generated_topics):
