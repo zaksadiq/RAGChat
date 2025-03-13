@@ -3,10 +3,12 @@ from parse_pdf import LOCAL_DATA_STORE_FOLDER
 import random
 import os
 import pickle
+import json
+import chromadb
 
 
 def get_data_from_binary():
-    binary_folder_path = LOCAL_DATA_STORE_FOLDER + '/'
+    binary_folder_path = LOCAL_DATA_STORE_FOLDER + "/"
     binary_files = [os.path.join(binary_folder_path, f) for f in os.listdir(binary_folder_path)]
     # Get latest file.
     latest = max(binary_files, key=os.path.getctime)
@@ -14,9 +16,27 @@ def get_data_from_binary():
     print(latest)
 
     with open(latest, "rb") as file:
-        generated_topics_by_page = pickle.load(file)
+        message_payload_received = pickle.load(file)
 
-    return generated_topics_by_page
+    return message_payload_received
+
+def get_vector_database_collection_data():
+    file_path = LOCAL_DATA_STORE_FOLDER + "/" + data_from_collection.json
+    data = None
+    with open(file_path, "r") as file:
+        data = json.load(f)
+    return data
+
+def rebuild_vector_database_collection():
+    client = chromadb.Client()
+    vector_database_collection = client.create_collection(name="chunksandtopics_collection")
+    vector_database_collection.add(
+        embeddings=data["embeddings"]
+        documents=data["documents"]
+        ids=data["ids"]
+        metadatas=data["metadatas"]
+    )
+    return vector_database_collection
 
 def pick_random_topic(generated_pages_topics):
     # Create a set (because this will only allow unique additions, unlike an Array/List.)
@@ -64,17 +84,35 @@ def retrieve_page_from_topic(generated_topics_by_page, randomly_selected_topic):
     return page_id
 
 def select_random_and_do_rag():
+    # Get data from parse_pdf.py (pickled / variables in binary)
     message_payload = get_data_from_binary()
     generated_topics_by_page = message_payload[0]
     extracted_text_by_page = message_payload[1]
-
-    randomly_selected_topic = pick_random_topic(generated_topics_by_page)
+    embeddings_model = message_payload[2]
+    vector_database_collection = message_payload[3]
     print('generated_topics_by_page: ', generated_topics_by_page)
+    #
+    # Rebuild vector_database_collection from parse_pdf.py (data_from_collection.json)
+    vector_database_collection_data = get_vector_database_collection_data()
+    vector_database_collection = rebuild_vector_database_collection()
 
-    most_relevant_page = retrieve_page_from_topic(generated_topics_by_page, randomly_selected_topic)
-    print('got most relevant page: ', most_relevant_page)
+    # Deal with topics. (Pick, get relevant chunk/page)
+    randomly_selected_topic = pick_random_topic(generated_topics_by_page)
+    print('randomly selected topic: ', randomly_selected_topic)
 
-    relevant_text_to_randomly_selected_topic = extracted_text_by_page[most_relevant_page]
-    print('text of most relevant: ', extracted_text_by_page[most_relevant_page])
+    # most_relevant_page = retrieve_page_from_topic(generated_topics_by_page, randomly_selected_topic)
+    # print('got most relevant page: ', most_relevant_page)
+
+    # relevant_text_for_randomly_selected_topic = extracted_text_by_page[most_relevant_page]
+    # print('text of most relevant: ', extracted_text_by_page[most_relevant_page])
+    #
+
+    # Query vector database for randomly selected topic.
+    vector_database_collection.query(
+        query_embeddings=[],
+        n_results=10000, # Large number to get all matches.
+        where={"chunk_topics": {"$elemMatch": {"$eq": (random_topic,)}}} # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    )
+    #
 
     return relevant_text_to_randomly_selected_topic

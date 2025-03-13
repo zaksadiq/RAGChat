@@ -15,13 +15,14 @@ import random
 
 import pickle
 
-FOLDER_PROCESSED = "processed"
-FOLDER_VECTOR_DB = "vector_db"
-os.makedirs(FOLDER_PROCESSED, exist_ok=True)
-os.makedirs(FOLDER_VECTOR_DB, exist_ok=True)
+from sentence_transformers import SentenceTransformer
+import chromadb
+import json
+
+# os.makedirs(FOLDER_VECTOR_DB, exist_ok=True)
 
 # Where we will put the generated topics as a binary file.
-LOCAL_DATA_STORE_FOLDER = 'generated_topics'
+LOCAL_DATA_STORE_FOLDER = 'data_store'
 
 
 # PDF Plumber text extraction on file.
@@ -75,31 +76,85 @@ def generate_topics_from_text(array_of_extracted_text_by_page):
         print(f"Page {i+1} topics: {topics}")
     return [generated_topics, printed_topics]
 
-def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page):
+def save_collection(vector_database_collection):
+    data = vector_database_collection.get()
+    file_path = LOCAL_DATA_STORE_FOLDER + "/" + "data_from_collection.json"
+    with open(file_path, "w") as file:
+        json.dump(data, file)
 
+def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page, embedding_model, vector_database_collection):
     # Create the upload folder if it doesn't exist
     if not os.path.exists(LOCAL_DATA_STORE_FOLDER):
         os.makedirs(LOCAL_DATA_STORE_FOLDER)
 
     file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + file_name + ".pkl"
 
-    message_payload = (generated_topics_by_page, extracted_text_by_page)
+    message_payload = (generated_topics_by_page, extracted_text_by_page, embedding_model)
 
     with open(file_path_and_name, "wb") as file:
         pickle.dump(message_payload, file)
 
+    save_collection(vector_database_collection)
+
 def parse_pdf(pdf_path):
+    # Get text from pdf and generate topics.
+    
     file_name = os.path.basename(pdf_path).replace(".pdf", "") # Remove file extension for file name.
-    output_path = os.path.join(FOLDER_PROCESSED, file_name + ".json")
+    # output_path = os.path.join(FOLDER_PROCESSED, file_name + ".json")
 
     extracted_text_by_page = get_text_from_pdf(pdf_path)
-    print('extracted_pages_text:')
-    print(extracted_text_by_page)
+    print('extracted_pages_text: ', extracted_text_by_page)
+
     generated_topics_by_page = generate_topics_from_text(extracted_text_by_page)
     print('topics:')
     for topic in generated_topics_by_page[1]: 
         print(topic)
-
-    save_to_file(file_name, generated_topics_by_page, extracted_text_by_page)
     
+    #
+
+    # Get chunks from LDA 'processed' pages.
+    # all_chunks = []
+    # for i, page in enumerate(generated_topics_by_page[0]): # Index 0 is generated topics. (1 is printed topics.)
+    #     # Each i is a new page
+    #     print('page: ', page)
+    #     for chunk in page:
+    #         print('chunk: ', chunk)
+    #         all_chunks.append(chunk) # Should be an array of tuples, where each tuple is a topic and relevancy score of the topic, the chunk corresponds to.
+    #
+    #   Not necessary, I just figured out.
+    #
+
+    # 13 March 2025.
+    # RAG items:
+    ## Embeddings
+    ## Vector Database
+    
+    # Embeddings
+    embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    embeddings = embedding_model.encode(extracted_text_by_page)
+    print('embeddings shape: ', embeddings.shape)
+    embeddings = embeddings.tolist()
+    
+    # Vector Database
+    vector_database_client = chromadb.Client()
+    vector_database_collection = vector_database_client.create_collection(name="pdf_chunks")
+    # PDF page text strings will each be our chunks.
+    for i, page_text_string in enumerate(extracted_text_by_page):
+        vector_database_collection.add(
+            embeddings=[embeddings[i]],
+            documents=[page_text_string],
+            ids=[f"{i}"],
+            # Chunks are currently pages of the document.
+            metadatas=[{"chunk_id": i, "chunk_text": page_text_string, "chunk_topics": json.dumps(generated_topics_by_page[0][i])}] # Put page_text in metadata too to help in-case it has to be got at same time as other metadata (single query). ; Also 'serialise'? the topics/relevance tuples list as a JSON string.
+        )
+
+    #
+
+
+    # Save for the random_topic_and_rag.py file to pick up.
+
+    save_to_file(file_name, generated_topics_by_page, extracted_text_by_page, embedding_model, vector_database_collection)
+
+    #
+
     return generated_topics_by_page
