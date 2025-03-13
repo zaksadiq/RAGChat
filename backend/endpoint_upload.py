@@ -53,9 +53,14 @@ def upload_file():
     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
     
+    print('F5.')
     topics = parse_pdf.parse_pdf(file_path)
 
-    print('F5.')
-    # Respond with the file path or other relevant info
-    return jsonify({'message': 'File uploaded and parsed successfully', 'file_path': file_path, 'topics': topics[1]}), 200
+    print('F6.')
+    # Respond with the file path and other relevant info
+    response = jsonify({'message': 'File uploaded and parsed.', 'file_path': file_path, 'topics': topics[1]})
+    response.status_code = 200
+    response.headers['Content-Type'] = 'application/json'
+    return response
+    # return jsonify({'message': 'File uploaded and parsed successfully', 'file_path': file_path, 'topics': topics[1]}), 200
 

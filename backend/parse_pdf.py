@@ -26,13 +26,13 @@ LOCAL_DATA_STORE_FOLDER = 'generated_topics'
 
 # PDF Plumber text extraction on file.
 def get_text_from_pdf(pdf_path):
-    pages_text_strings = []
+    extracted_text_by_page = []
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             # Extract_text returns all page char objects as a single string. I put it into the array, where each page is a new entry.
             current_page_text = page.extract_text() 
-            pages_text_strings.append(current_page_text)
-    return pages_text_strings
+            extracted_text_by_page.append(current_page_text)
+    return extracted_text_by_page
 
 def tokenise_text(text_to_tokenise):
     stop_words = set(stopwords.words('english'))
@@ -52,11 +52,11 @@ def tokenise_text(text_to_tokenise):
 
     return words
 
-def generate_topics_from_text(array_of_pages_text_strings):
+def generate_topics_from_text(array_of_extracted_text_by_page):
     # Currently works with all words on each page, but for more focused discussions we could work by sentence on each page, eventually, once technical details and implementation are worked out.
     
     # Get words on each page.
-    tokenised_pages = [tokenise_text(page_text_string) for page_text_string in array_of_pages_text_strings]
+    tokenised_pages = [tokenise_text(page_text_string) for page_text_string in array_of_extracted_text_by_page]
 
     # Dictionary and corpus necessary for LDA.
     dictionary = corpora.Dictionary(tokenised_pages) # Takes a list of lists. In our case a list of pages with a list of words.
@@ -75,7 +75,7 @@ def generate_topics_from_text(array_of_pages_text_strings):
         print(f"Page {i+1} topics: {topics}")
     return [generated_topics, printed_topics]
 
-def save_to_file(file_name, generated_topics_by_page):
+def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page):
 
     # Create the upload folder if it doesn't exist
     if not os.path.exists(LOCAL_DATA_STORE_FOLDER):
@@ -83,8 +83,10 @@ def save_to_file(file_name, generated_topics_by_page):
 
     file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + file_name + ".pkl"
 
+    message_payload = (generated_topics_by_page, extracted_text_by_page)
+
     with open(file_path_and_name, "wb") as file:
-        pickle.dump(generated_topics_by_page, file)
+        pickle.dump(message_payload, file)
 
 def parse_pdf(pdf_path):
     file_name = os.path.basename(pdf_path).replace(".pdf", "") # Remove file extension for file name.
@@ -98,6 +100,6 @@ def parse_pdf(pdf_path):
     for topic in generated_topics_by_page[1]: 
         print(topic)
 
-    save_to_file(file_name, generated_topics_by_page)
+    save_to_file(file_name, generated_topics_by_page, extracted_text_by_page)
     
     return generated_topics_by_page
