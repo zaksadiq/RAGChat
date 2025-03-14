@@ -92,7 +92,7 @@ def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page, em
 
     save_collection(vector_database_collection)
 
-def parse_pdf(pdf_path):
+def parse_pdf(pdf_path, chromadb_client):
     # Get text from pdf and generate topics.
     
     file_name = os.path.basename(pdf_path).replace(".pdf", "") # Remove file extension for file name.
@@ -132,16 +132,62 @@ def parse_pdf(pdf_path):
     embeddings = embeddings.tolist()
     
     # Vector Database
-    vector_database_client = chromadb.Client()
+    vector_database_client = chromadb_client
     vector_database_collection = vector_database_client.create_collection(name="pdf_chunks")
     # PDF page text strings will each be our chunks.
     for i, page_text_string in enumerate(extracted_text_by_page):
+        
+        topics = generated_topics_by_page[0][i]
+        topic_keys_flags = [0,0,0,0,0,0,0] # Supports 7 topics.
+        topic_keys_relevance = [0,0,0,0,0,0,0]
+        # Switch bits for topics that are active. (Python doesn't have a switch/case statement.)
+        for topic in topics:
+            if (topic[0] == 0): # First index of topic is id integer.
+                topic_keys_flags[0] = 1
+                topic_keys_relevance[0] = topic[1] # Relevance score (float).
+            elif (topic[0] == 1):
+                topic_keys_flags[1] = 1
+                topic_keys_relevance[1] = topic[1]
+            elif (topic[0] == 2):
+                topic_keys_flags[2] = 1
+                topic_keys_relevance[2] = topic[1]
+            elif (topic[0] == 3):
+                topic_keys_flags[3] = 1
+                topic_keys_relevance[3] = topic[1]
+            elif (topic[0] == 4):
+                topic_keys_flags[4] = 1
+                topic_keys_relevance[4] = topic[1]
+            elif (topic[0] == 5):
+                topic_keys_flags[5] = 1
+                topic_keys_relevance[5] = topic[1]
+            elif (topic[0] == 6):
+                topic_keys_flags[6] = 1
+                topic_keys_relevance[6] = topic[1]
+        
         vector_database_collection.add(
             embeddings=[embeddings[i]],
             documents=[page_text_string],
             ids=[f"{i}"],
             # Chunks are currently pages of the document.
-            metadatas=[{"chunk_id": i, "chunk_text": page_text_string, "chunk_topics": json.dumps(generated_topics_by_page[0][i])}] # Put page_text in metadata too to help in-case it has to be got at same time as other metadata (single query). ; Also 'serialise'? the topics/relevance tuples list as a JSON string.
+            metadatas=[{
+                "chunk_id": i,
+                # "chunk_text": page_text_string,# Put page_text in metadata too to help in-case it has to be got at same time as other metadata (single query). 
+                # "chunk_topics": json.dumps(generated_topics_by_page[0][i]), # Also 'serialise'? the topics/relevance tuples list as a JSON string.
+                "topic_0": topic_keys_flags[0],
+                "topic_1": topic_keys_flags[1],
+                "topic_2": topic_keys_flags[2],
+                "topic_3": topic_keys_flags[3],
+                "topic_4": topic_keys_flags[4],
+                "topic_5": topic_keys_flags[5],
+                "topic_6": topic_keys_flags[6],
+                "topic_0_relevance": topic_keys_relevance[0],
+                "topic_1_relevance": topic_keys_relevance[1],
+                "topic_2_relevance": topic_keys_relevance[2],
+                "topic_3_relevance": topic_keys_relevance[3],
+                "topic_4_relevance": topic_keys_relevance[4],
+                "topic_5_relevance": topic_keys_relevance[5],
+                "topic_6_relevance": topic_keys_relevance[6]
+                }] 
         )
 
     #

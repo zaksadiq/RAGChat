@@ -1,13 +1,18 @@
 from flask import Blueprint, current_app, jsonify, request
+
 import subprocess
 import os
+
+import chromadb
 import parse_pdf
+
 
 endpoint_upload = Blueprint('endpoint_upload', __name__)
 
 LOCAL_UPLOAD_FOLDER = 'uploads'
 # Allowed file extensions (to limit the types of files that can be uploaded)
 ALLOWED_EXTENSIONS = {'pdf'}
+
 
 # Function to check allowed file extension
 def allowed_file(filename):
@@ -54,7 +59,8 @@ def upload_file():
     file.save(file_path)
     
     print('F5.')
-    topics = parse_pdf.parse_pdf(file_path)
+    chromadb_client = current_app.config.get('CHROMADB_CLIENT', chromadb.Client())
+    topics = parse_pdf.parse_pdf(file_path, chromadb_client)
 
     print('F6.')
     # Respond with the file path and other relevant info

@@ -21,39 +21,40 @@ def get_data_from_binary():
 
     return message_payload_received
 
-def get_vector_database_collection_data():
-    file_path = LOCAL_DATA_STORE_FOLDER + "/" + "data_from_collection.json"
-    data = None
-    with open(file_path, "r") as file:
-        print('doing json load.')
-        data = json.load(file)
-        print('done json load.')
-    return data
+# def get_vector_database_collection_data():
+#     file_path = LOCAL_DATA_STORE_FOLDER + "/" + "data_from_collection.json"
+#     data = None
+#     with open(file_path, "r") as file:
+#         print('doing json load.')
+#         data = json.load(file)
+#         print('done json load.')
+#     return data
 
-def rebuild_vector_database_collection():
-    print('creating chromadb client.')
-    vector_database_client = chromadb.Client()
-    print('created chromadb client.')
-    print('creating collection.')
-    vector_database_collection = vector_database_client.create_collection(name="pdf_chunks")
-    print('created collection.')
-    vector_database_collection.add(
-        embeddings=data["embeddings"],
-        documents=data["documents"],
-        ids=data["ids"],
-        metadatas=data["metadatas"]
-    )
-    print('added to collection.')
-    return vector_database_collection
+# def rebuild_vector_database_collection(chromadb_client):
+#     print('creating chromadb client.')
+#     vector_database_client = chromadb_client
+#     print('created chromadb client.')
+#     print('creating collection.')
+#     vector_database_collection = vector_database_client.create_collection(name="pdf_chunks_rebuild")
+#     print('created collection.')
+#     vector_database_collection.add(
+#         embeddings=data["embeddings"],
+#         documents=data["documents"],
+#         ids=data["ids"],
+#         metadatas=data["metadatas"]
+#     )
+#     print('added to collection.')
+#     return vector_database_collection
 
 def pick_random_topic(generated_pages_topics):
     # Create a set (because this will only allow unique additions, unlike an Array/List.)
-    all_topics_in_one_set = set()
-    for page in generated_pages_topics:
-        for topic in page:
-            all_topics_in_one_set.add(topic[0]) # Array index 0 contains the topic ID.
+    # all_topics_in_one_set = set()
+    # for page in generated_pages_topics:
+    #     for topic in page:
+    #         all_topics_in_one_set.add(topic[0]) # Array index 0 contains the topic ID.
 
-    selected_random_topic = random.choice(list(all_topics_in_one_set))
+    # selected_random_topic = random.choice(list(all_topics_in_one_set))
+    selected_random_topic = random.choice(range(7)) # Supporting 7 topics - TODO: Add NUMBER_OF_TOPICS constant globally.
     print('Random topic:')
     print(selected_random_topic)
     print(type(selected_random_topic))
@@ -91,7 +92,7 @@ def retrieve_page_from_topic(generated_topics_by_page, randomly_selected_topic):
     # Give back the page with the highest topic relevance score. TODO: Amend to consider unlikely edge case of two pages having the same relevance score.
     return page_id
 
-def select_random_and_do_rag():
+def select_random_and_do_rag(chromadb_client):
     # Get data from parse_pdf.py (pickled / variables in binary)
     message_payload = get_data_from_binary()
     generated_topics_by_page = message_payload[0]
@@ -100,8 +101,9 @@ def select_random_and_do_rag():
     print('generated_topics_by_page: ', generated_topics_by_page)
     #
     # Rebuild vector_database_collection from parse_pdf.py (data_from_collection.json)
-    vector_database_collection_data = get_vector_database_collection_data()
-    vector_database_collection = rebuild_vector_database_collection()
+    vector_database_collection = chromadb_client.get_collection("pdf_chunks")
+    # vector_database_collection_data = get_vector_database_collection_data()
+    # vector_database_collection = rebuild_vector_database_collection(chromadb_client)
 
     # Deal with topics. (Pick, get relevant chunk/page)
     randomly_selected_topic = pick_random_topic(generated_topics_by_page)
@@ -115,11 +117,61 @@ def select_random_and_do_rag():
     #
 
     # Query vector database for randomly selected topic.
-    vector_database_collection.query(
-        query_embeddings=[],
+    ## Have to do it manually due 
+    results = vector_database_collection.query(
+        query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
         n_results=10000, # Large number to get all matches.
-        where={"chunk_topics": {"$elemMatch": {"$eq": (random_topic,)}}} # Get chunks where the topics contain an element with random_topic's id as the topic id.
+        where={f"topic_{randomly_selected_topic}": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
     )
+    # if (randomly_selected_topic == 0):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_0": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 1):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_1": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 2):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_2": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 3):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_3": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 4):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_4": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 5):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_5": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    # elif (randomly_selected_topic == 6):
+    #     results = vector_database_collection.query(
+    #         query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
+    #         n_results=10000, # Large number to get all matches.
+    #         where={"topic_6": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+    #     )
+    
+    documents = results["documents"]
+    print('documents: ', documents)
+    metadatas = results["metadatas"]
+    print('metadatas: ', metadatas)
+    similarities = results["distances"] # Similarity between query embeddings and embeddings for result document in the vector database.
+    print('similarities: ', similarities)
     #
 
-    return relevant_text_to_randomly_selected_topic
+    # return relevant_text_to_randomly_selected_topic

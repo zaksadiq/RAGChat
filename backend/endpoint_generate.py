@@ -4,6 +4,7 @@ from huggingface_hub import InferenceClient
 import api_keys
 import requests
 
+import chromadb
 from random_topic_and_rag import select_random_and_do_rag
 
 endpoint_generate = Blueprint('endpoint_generate', __name__)
@@ -21,7 +22,8 @@ prompt = "Generate JSON containing JSON of an array of 7 distinct messages which
 @endpoint_generate.route("/message")
 def get_message():
     try:
-        random_topic_text = select_random_and_do_rag()
+        chromadb_client = current_app.config.get('CHROMADB_CLIENT', chromadb.Client())
+        random_topic_text = select_random_and_do_rag(chromadb_client)
         payload = {
             "model": "deepseek-r1:7b",
             "prompt": f"""Always respond in the exact JSON format:
