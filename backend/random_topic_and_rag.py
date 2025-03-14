@@ -9,33 +9,41 @@ import chromadb
 
 def get_data_from_binary():
     binary_folder_path = LOCAL_DATA_STORE_FOLDER + "/"
-    binary_files = [os.path.join(binary_folder_path, f) for f in os.listdir(binary_folder_path)]
-    # Get latest file.
-    latest = max(binary_files, key=os.path.getctime)
-    print('latest file:')
-    print(latest)
+    # binary_files = [os.path.join(binary_folder_path, f) for f in os.listdir(binary_folder_path)]
+    # # Get latest file.
+    # latest = max(binary_files, key=os.path.getctime)
+    # print('latest file:')
+    # print(latest)
+    binary_file = binary_folder_path + "variables_binary.pkl"
 
-    with open(latest, "rb") as file:
+    with open(binary_file, "rb") as file:
         message_payload_received = pickle.load(file)
 
     return message_payload_received
 
 def get_vector_database_collection_data():
-    file_path = LOCAL_DATA_STORE_FOLDER + "/" + data_from_collection.json
+    file_path = LOCAL_DATA_STORE_FOLDER + "/" + "data_from_collection.json"
     data = None
     with open(file_path, "r") as file:
-        data = json.load(f)
+        print('doing json load.')
+        data = json.load(file)
+        print('done json load.')
     return data
 
 def rebuild_vector_database_collection():
-    client = chromadb.Client()
-    vector_database_collection = client.create_collection(name="chunksandtopics_collection")
+    print('creating chromadb client.')
+    vector_database_client = chromadb.Client()
+    print('created chromadb client.')
+    print('creating collection.')
+    vector_database_collection = vector_database_client.create_collection(name="pdf_chunks")
+    print('created collection.')
     vector_database_collection.add(
-        embeddings=data["embeddings"]
-        documents=data["documents"]
-        ids=data["ids"]
+        embeddings=data["embeddings"],
+        documents=data["documents"],
+        ids=data["ids"],
         metadatas=data["metadatas"]
     )
+    print('added to collection.')
     return vector_database_collection
 
 def pick_random_topic(generated_pages_topics):
@@ -89,7 +97,6 @@ def select_random_and_do_rag():
     generated_topics_by_page = message_payload[0]
     extracted_text_by_page = message_payload[1]
     embeddings_model = message_payload[2]
-    vector_database_collection = message_payload[3]
     print('generated_topics_by_page: ', generated_topics_by_page)
     #
     # Rebuild vector_database_collection from parse_pdf.py (data_from_collection.json)

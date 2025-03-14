@@ -1,13 +1,11 @@
 import sys
 import os
+
 import pdfplumber
-
 from gensim import corpora, models
-
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt_tab')
-
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 
@@ -18,8 +16,6 @@ import pickle
 from sentence_transformers import SentenceTransformer
 import chromadb
 import json
-
-# os.makedirs(FOLDER_VECTOR_DB, exist_ok=True)
 
 # Where we will put the generated topics as a binary file.
 LOCAL_DATA_STORE_FOLDER = 'data_store'
@@ -87,7 +83,7 @@ def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page, em
     if not os.path.exists(LOCAL_DATA_STORE_FOLDER):
         os.makedirs(LOCAL_DATA_STORE_FOLDER)
 
-    file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + file_name + ".pkl"
+    file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + "variables_binary.pkl"
 
     message_payload = (generated_topics_by_page, extracted_text_by_page, embedding_model)
 
