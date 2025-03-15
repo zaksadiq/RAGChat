@@ -167,11 +167,27 @@ def select_random_and_do_rag(chromadb_client):
     #     )
     
     documents = results["documents"]
-    print('documents: ', documents)
+    # print('documents: ', documents)
     metadatas = results["metadatas"]
     print('metadatas: ', metadatas)
     similarities = results["distances"] # Similarity between query embeddings and embeddings for result document in the vector database.
     print('similarities: ', similarities)
+    
+    highest_relevance_score = 0
+    highest_relevance_score_id = None
+    for chunk_metadata in metadatas[0]:
+        chunk_id = chunk_metadata["chunk_id"]
+        topic_relevance_score = chunk_metadata[f"topic_{randomly_selected_topic}_relevance"]
+        if (topic_relevance_score > highest_relevance_score):
+            highest_relevance_score = topic_relevance_score
+            highest_relevance_score_id = chunk_id
+    
+    print('highest score: ', highest_relevance_score)
+    print('highest score id: ', highest_relevance_score_id)
+        # Get chunk for highest relevancy score.
+    print('printing documents, ', documents[0][highest_relevance_score_id])
+    return documents[0][highest_relevance_score_id]
+    # return documents[]
     #
 
     # return relevant_text_to_randomly_selected_topic
