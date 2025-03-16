@@ -87,6 +87,37 @@ function CommentThread() {
   );
 }
 
+function Pagination() {
+  const [pageNumber, setPageNumber] = useState(1);
+  const [discussionThreads, setDiscussionThreads] = useState([]);
+  
+  const generateNewThreads = () => {
+    const newThreads = []
+    for (let i = 0; i < 5; i++) {
+      newThreads.push(<CommentThread key={`${pageNumber}-${i}`} />);
+    }
+    setDiscussionThreads(newThreads);
+  }
+  const newPage = () => {
+    setPageNumber(pageNumber+1);
+  }
+
+  useEffect(() => {
+    generateNewThreads();
+  }, [pageNumber]);
+
+
+  return (
+    <div class="page">
+        <h2>Page {pageNumber}</h2>
+        {/* <CommentThread /> */}
+        {/* {discussionThreads.map((item, i) => item) } */}
+        {discussionThreads}
+        <button onClick={newPage}>{'>'}</button>
+    </div>
+  )
+}
+
 function Sidebar({ setGenerate, setGenerateDisabled }) {
   
   const [file, setFile] = useState<Blob | null>(null);
@@ -183,20 +214,19 @@ function Sidebar({ setGenerate, setGenerateDisabled }) {
 function UI() {
   const [generate, setGenerate] = useState(false);
   const [generateDisabled, setGenerateDisabled] = useState(true);
-
+  
   return (
     <div id="wrapper">
       <div id="inner-body">
       { generate ? 
       <>
-        <CommentThread />
-        <CommentThread />
-        <CommentThread />
-        <CommentThread />
-        <CommentThread />
+        <Pagination />
       </>
       :
-        <button disabled={generateDisabled} onClick={() => setGenerate(true)}>Generate</button> }
+      <>
+        <button disabled={generateDisabled} onClick={() => setGenerate(true)}>Generate</button>
+      </>
+      }
       </div>
       <div id="sidebar-r">
         <Sidebar setGenerate={setGenerate} setGenerateDisabled={setGenerateDisabled} />

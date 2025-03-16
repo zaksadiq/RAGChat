@@ -16,6 +16,8 @@ import pickle
 from sentence_transformers import SentenceTransformer
 import chromadb
 import json
+from chromadb.errors import InvalidCollectionException
+
 
 # Where we will put the generated topics as a binary file.
 LOCAL_DATA_STORE_FOLDER = 'data_store'
@@ -133,7 +135,16 @@ def parse_pdf(pdf_path, chromadb_client):
     
     # Vector Database
     vector_database_client = chromadb_client
+    try:
+        vector_database_client.get_collection("pdf_chunks")
+    except InvalidCollectionException:
+        # Collection does not exist
+        pass
+    else:
+        vector_database_client.delete_collection("pdf_chunks")
+
     vector_database_collection = vector_database_client.create_collection(name="pdf_chunks")
+
     # PDF page text strings will each be our chunks.
     for i, page_text_string in enumerate(extracted_text_by_page):
         
@@ -142,27 +153,9 @@ def parse_pdf(pdf_path, chromadb_client):
         topic_keys_relevance = [0,0,0,0,0,0,0]
         # Switch bits for topics that are active. (Python doesn't have a switch/case statement.)
         for topic in topics:
-            if (topic[0] == 0): # First index of topic is id integer.
-                topic_keys_flags[0] = 1
-                topic_keys_relevance[0] = topic[1] # Relevance score (float).
-            elif (topic[0] == 1):
-                topic_keys_flags[1] = 1
-                topic_keys_relevance[1] = topic[1]
-            elif (topic[0] == 2):
-                topic_keys_flags[2] = 1
-                topic_keys_relevance[2] = topic[1]
-            elif (topic[0] == 3):
-                topic_keys_flags[3] = 1
-                topic_keys_relevance[3] = topic[1]
-            elif (topic[0] == 4):
-                topic_keys_flags[4] = 1
-                topic_keys_relevance[4] = topic[1]
-            elif (topic[0] == 5):
-                topic_keys_flags[5] = 1
-                topic_keys_relevance[5] = topic[1]
-            elif (topic[0] == 6):
-                topic_keys_flags[6] = 1
-                topic_keys_relevance[6] = topic[1]
+            bit_to_flip = topic[0] # First index of topic is id integer.
+            topic_keys_flags[bit_to_flip] = 1
+            topic_keys_relevance[bit_to_flip] = topic[1] # Relevance score (float).
         
         vector_database_collection.add(
             embeddings=[embeddings[i]],

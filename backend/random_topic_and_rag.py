@@ -174,19 +174,25 @@ def select_random_and_do_rag(chromadb_client):
     print('similarities: ', similarities)
     
     highest_relevance_score = 0
-    highest_relevance_score_id = None
+    highest_relevance_score_i = None
+    i = 0
     for chunk_metadata in metadatas[0]:
-        chunk_id = chunk_metadata["chunk_id"]
         topic_relevance_score = chunk_metadata[f"topic_{randomly_selected_topic}_relevance"]
         if (topic_relevance_score > highest_relevance_score):
             highest_relevance_score = topic_relevance_score
-            highest_relevance_score_id = chunk_id
+            highest_relevance_score_i = i
+        i += 1
     
     print('highest score: ', highest_relevance_score)
-    print('highest score id: ', highest_relevance_score_id)
+    print('highest score id: ', highest_relevance_score_i)
         # Get chunk for highest relevancy score.
-    print('printing documents, ', documents[0][highest_relevance_score_id])
-    return documents[0][highest_relevance_score_id]
+    print('printing documents, ', len(documents[0]))
+    # for document in documents[0]:
+        # if document.chu
+    # return documents[0][highest_relevance_score_id]
+    relevant_doc_based_on_random_topic = documents[0][highest_relevance_score_i]
+    print('got document: ', relevant_doc_based_on_random_topic)
+    return relevant_doc_based_on_random_topic
     # return documents[]
     #
 
