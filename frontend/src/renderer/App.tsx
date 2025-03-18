@@ -6,11 +6,15 @@ import { reuleaux } from 'ldrs'
 reuleaux.register('loading-animation')
 import axios from "axios";
 
-function CommentThread() {
+function CommentThread({ keyProp }) {
 
 
   const [messagesJSON, setMessagesJSON] = useState<string>(""); 
   const [messages, setMessages] = useState<Array<string>>([]); 
+
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [loadedTime, setLoadedTime] = useState<number | null>(null);
+  const [timeDelta, setTimeDelta] = useState<number | null>(null);
 
   const fetchMessages = async () => {
     try {
@@ -46,6 +50,30 @@ function CommentThread() {
   useEffect(() => {
     fetchMessages();
   }, []);
+
+  // Record time when component is initialised and then when messages is populated, so we can
+  // time performance.
+  useEffect(() => {
+    if (messages.length == 0) {
+      // console.log('Start time: ' + Date.now());
+      setStartTime(Date.now()); // Millisconds since Unix epoch.
+    } else {
+      // console.log('Loaded time: ' + Date.now());
+      setLoadedTime(Date.now());
+    }
+  }, [messages]);
+  //
+  useEffect(() => {
+    if (loadedTime !== null) {
+      // console.log('Setting time delta:')
+      // console.log('StartTime: ' + startTime);
+      // console.log('LoadedTime: ' + loadedTime);
+      let timeDelta = loadedTime - startTime;
+      console.log(`Delta [${keyProp}] = ${timeDelta}ms ; ${timeDelta / 1000}s` )
+      setTimeDelta(timeDelta);
+    }
+  }, [loadedTime]);
+  //
   
   // Run when messagesJSON updates.
   useEffect(() => {
@@ -94,7 +122,7 @@ function Pagination() {
   const generateNewThreads = () => {
     const newThreads = []
     for (let i = 0; i < 5; i++) {
-      newThreads.push(<CommentThread key={`${pageNumber}-${i}`} />);
+      newThreads.push(<CommentThread key={`${pageNumber}-${i}`} keyProp={`${pageNumber}-${i}`} />);
     }
     setDiscussionThreads(newThreads);
   }
@@ -108,7 +136,7 @@ function Pagination() {
 
 
   return (
-    <div class="page">
+    <div className="page">
         <h2>Page {pageNumber}</h2>
         {/* <CommentThread /> */}
         {/* {discussionThreads.map((item, i) => item) } */}
