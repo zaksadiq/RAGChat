@@ -37,6 +37,7 @@ body {
   overflow-y: hidden; 
   overflow-x: hidden;
   width: 20vw;
+  word-wrap: break-word;
 }
 
 #btn-upload {
