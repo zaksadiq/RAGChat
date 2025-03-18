@@ -67,12 +67,12 @@ def retrieve_page_from_topic(generated_topics_by_page, randomly_selected_topic):
     most_relevant_section_page = None
     page_id = 0
     page_section_id = 0
-    for page in generated_topics_by_page:
+    for page in generated_topics_by_page[0]:
         print('new page', page)
         print('id', page_id)
-        if (isinstance(page[0][0], str)): # Account for strange entry at end of pages array with strings.
-            print('skipping.')
-            continue # skip this page
+        # if (isinstance(page[0][0], str)): # Account for strange entry at end of pages array with strings.
+        #     print('skipping.')
+        #     continue # skip this page
         for page_section_topics in page: 
             print('page_section_topics', page_section_topics)
             for topic in page_section_topics:
@@ -117,11 +117,17 @@ def select_random_and_do_rag(chromadb_client):
     #
 
     # Query vector database for randomly selected topic.
-    ## Have to do it manually due 
+    topic_words = generated_topics_by_page[2][randomly_selected_topic]
+    print('topic words: ', topic_words)
+    query = " ".join(topic_words)
+    query = "Get the section of the text corresponding most to the following words : " + query + "."
+    print('query: ', query)
+    query_embeddings = embeddings_model.encode(query).tolist()
+    
     results = vector_database_collection.query(
-        query_embeddings=[[0]*384], # Dummy embeddings as not needed. Could be useful in future.
-        n_results=10000, # Large number to get all matches.
-        where={f"topic_{randomly_selected_topic}": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
+        query_embeddings=query_embeddings, # Dummy embeddings as not needed. Could be useful in future.
+        n_results=1, # Large number to get all matches.
+        # where={f"topic_{randomly_selected_topic}": {"$eq": 1} } # Get chunks where the topics contain an element with random_topic's id as the topic id.
     )
     # if (randomly_selected_topic == 0):
     #     results = vector_database_collection.query(
@@ -167,30 +173,31 @@ def select_random_and_do_rag(chromadb_client):
     #     )
     
     documents = results["documents"]
-    # print('documents: ', documents)
+    print('documents: ', documents)
     metadatas = results["metadatas"]
     print('metadatas: ', metadatas)
     similarities = results["distances"] # Similarity between query embeddings and embeddings for result document in the vector database.
     print('similarities: ', similarities)
     
-    highest_relevance_score = 0
-    highest_relevance_score_i = None
-    i = 0
-    for chunk_metadata in metadatas[0]:
-        topic_relevance_score = chunk_metadata[f"topic_{randomly_selected_topic}_relevance"]
-        if (topic_relevance_score > highest_relevance_score):
-            highest_relevance_score = topic_relevance_score
-            highest_relevance_score_i = i
-        i += 1
+    # highest_relevance_score = 0
+    # highest_relevance_score_i = None
+    # i = 0
+    # for chunk_metadata in metadatas[0]:
+    #     topic_relevance_score = chunk_metadata[f"topic_{randomly_selected_topic}_relevance"]
+    #     if (topic_relevance_score > highest_relevance_score):
+    #         highest_relevance_score = topic_relevance_score
+    #         highest_relevance_score_i = i
+    #     i += 1
     
-    print('highest score: ', highest_relevance_score)
-    print('highest score id: ', highest_relevance_score_i)
+    # print('highest score: ', highest_relevance_score)
+    # print('highest score id: ', highest_relevance_score_i)
         # Get chunk for highest relevancy score.
     print('printing documents, ', len(documents[0]))
     # for document in documents[0]:
         # if document.chu
     # return documents[0][highest_relevance_score_id]
-    relevant_doc_based_on_random_topic = documents[0][highest_relevance_score_i]
+    # relevant_doc_based_on_random_topic = documents[0][highest_relevance_score_i]
+    relevant_doc_based_on_random_topic = documents[0]
     print('got document: ', relevant_doc_based_on_random_topic)
     return relevant_doc_based_on_random_topic
     # return documents[]

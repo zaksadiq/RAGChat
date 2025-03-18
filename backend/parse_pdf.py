@@ -70,9 +70,14 @@ def generate_topics_from_text(array_of_extracted_text_by_page):
     # relevance score for that page.
     generated_topics = [lda[doc_bow] for doc_bow in corpus]
     printed_topics = lda.print_topics(num_topics=7, num_words=3)
+    # words_of_topics = lda.show_topics(num_topics=7, num_words=10, formatted=True)
+    # print('words_of_topics', words_of_topics)
+    # words_of_topics = [[word for word in topic[1]] for topic in lda.show_topics(num_topics=7)] 
+    words_of_topics = [[word for weight, word in lda.show_topic(topic_id, topn=10)] for topic_id in range(7)]
+    print('words_of_topics', words_of_topics)
     for i, topics in enumerate(generated_topics):
         print(f"Page {i+1} topics: {topics}")
-    return [generated_topics, printed_topics]
+    return [generated_topics, printed_topics, words_of_topics]
 
 def save_collection(vector_database_collection):
     data = vector_database_collection.get()
@@ -88,7 +93,6 @@ def save_to_file(file_name, generated_topics_by_page, extracted_text_by_page, em
     file_path_and_name = LOCAL_DATA_STORE_FOLDER + "/" + "variables_binary.pkl"
 
     message_payload = (generated_topics_by_page, extracted_text_by_page, embedding_model)
-
     with open(file_path_and_name, "wb") as file:
         pickle.dump(message_payload, file)
 
@@ -101,7 +105,7 @@ def parse_pdf(pdf_path, chromadb_client):
     # output_path = os.path.join(FOLDER_PROCESSED, file_name + ".json")
 
     extracted_text_by_page = get_text_from_pdf(pdf_path)
-    print('extracted_pages_text: ', extracted_text_by_page)
+    # print('extracted_pages_text: ', extracted_text_by_page)
 
     generated_topics_by_page = generate_topics_from_text(extracted_text_by_page)
     print('topics:')
@@ -184,7 +188,6 @@ def parse_pdf(pdf_path, chromadb_client):
         )
 
     #
-
 
     # Save for the random_topic_and_rag.py file to pick up.
 

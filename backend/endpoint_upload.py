@@ -64,7 +64,7 @@ def upload_file():
 
     print('F6.')
     # Respond with the file path and other relevant info
-    response = jsonify({'message': 'File uploaded and parsed.', 'file_path': file_path, 'topics': topics[1]})
+    response = jsonify({'message': 'File uploaded and parsed.', 'file_path': file_path, 'topics': topics[2]})
     response.status_code = 200
     response.headers['Content-Type'] = 'application/json'
     return response

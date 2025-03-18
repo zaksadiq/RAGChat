@@ -36,11 +36,11 @@ def get_message():
                         }}
 
                         Do not add explanations, only return a valid JSON object.    
-                        Using the following context, 
+                        Using the following context for the request:
 
                             {random_topic_text}
 
-                        Generate JSON containing JSON of an array of 7 distinct messages which follow as a COHERENT internet discussion. Provide each as a JSON object with properties of id and message, following these strict two properties consistently. DO NOT USE HTML ELEMENTS SUCH AS SPAN JUST KEEP IT PLAIN TEXT AND EMOJI. The output must be presentable for a final product and NOT USE TEMPLATES SUCH AS [TOPIC] [PRODUCT X] AND SO ON.""",
+                        The request is to generate distinct messages which follow as a COHERENT internet discussion where each message is to do with the provided context and each message can be from a different person. DO NOT USE HTML ELEMENTS SUCH AS SPAN JUST KEEP IT PLAIN TEXT AND EMOJI. The output must be presentable for a final product and NOT USE TEMPLATES SUCH AS [TOPIC] [PRODUCT X] AND SO ON.""",
             "stream": False,
             "format": {
                 "type": "object",
