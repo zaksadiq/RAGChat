@@ -8,7 +8,6 @@ import axios from "axios";
 
 function CommentThread({ keyProp }) {
 
-
   const [messagesJSON, setMessagesJSON] = useState<string>(""); 
   const [messages, setMessages] = useState<Array<string>>([]); 
 
@@ -18,9 +17,8 @@ function CommentThread({ keyProp }) {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5001/message");
+      const response = await fetch("http://127.0.0.1:5001/generate");
       console.log('Got response.');
-      // console.log(response.json());
       const data: ApiResponse = await response.json();
       setMessagesJSON(data.response);
     } catch (error) {
