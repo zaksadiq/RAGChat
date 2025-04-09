@@ -68,8 +68,8 @@ export default function Sidebar({ setGenerate, setGenerateDisabled }) {
   }
 
   return (
-    <div>
-      <button disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
+    <div data-testid="sidebar">
+      <button data-testid="upload-button" disabled={uploading} id="btn-upload" onClick={browseFile}>+</button>
       <input onChange={uploadFileOnSelect} ref={fileInputRef} style={{ display: 'none' }} type="file" />
       { uploading ? <p className="wrapper-fileThumbnail">Uploading...</p> : (uploaded && success) ? <>
         <div className="wrapper-fileThumbnail">

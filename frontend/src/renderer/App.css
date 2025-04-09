@@ -130,10 +130,11 @@ a:hover {
   margin: 0 auto 30px;
 }
 
-/* Facebook style loading greeking. 
-with thanks to https://cloudcannon.com/blog/how-the-facebook-content-placeholder-works/
-TODO: Reference properly.
+/* Facebook style loading greeking animation not by the author. 
+Reference:
+Phillips, G. (2014) How the Facebook content placeholder works. Available at: https://cloudcannon.com/blog/how-the-facebook-content-placeholder-works/ (Accessed: 9 April 2025).
 */
+/**/
 @keyframes placeHolderShimmer{
   0%{
       background-position: -468px 0

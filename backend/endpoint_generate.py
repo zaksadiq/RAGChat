@@ -24,17 +24,16 @@ def get_message():
         random_topic_text = select_random_topic_and_do_rag(chromadb_client)
         payload = {
             "model": "deepseek-r1:7b",
-            "prompt": f"""Always respond in the exact JSON format:
+            "prompt": f"""Respond in JSON, use this format, replacing the content with a generated discussion message:
 
                         {{
                         "messages": [
-                            {{"id": 1, "message": "your response here"}},
-                            {{"id": 2, "message": "another response here"}}
+                            {{"id": 1, "message": "[Message 1 content.]"}},
+                            {{"id": 2, "message": "[Message 2 content.]"}}
                         ]
                         }}
 
-                        Do not add explanations, only return a valid JSON object.    
-                        Using the following context for the request:
+                        Use the following context for the request:
 
                             {random_topic_text}
 

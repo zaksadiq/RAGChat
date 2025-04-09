@@ -16,7 +16,7 @@ export default function UI() {
       </>
       :
       <>
-        <button disabled={generateDisabled} onClick={() => setGenerate(true)}>Generate</button>
+        <button data-testid="generate-button" disabled={generateDisabled} onClick={() => setGenerate(true)}>Generate</button>
       </>
       }
       </div>

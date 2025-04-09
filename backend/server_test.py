@@ -1,7 +1,5 @@
 from server import app
 import pytest
-#
-import io
 
 
 @pytest.fixture # Context for the tests
